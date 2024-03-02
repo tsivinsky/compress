@@ -81,6 +81,10 @@ func main() {
 	flag.Parse()
 
 	fp := flag.Arg(0)
+	if fp == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	files, err := getFilesRecursively(fp, func(filename string) bool {
 		if strings.Contains(filename, "_min") {
