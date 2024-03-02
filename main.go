@@ -135,5 +135,19 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		sourceSize := len(data)
+		stat, err := dst.Stat()
+		if err != nil {
+			panic(err)
+		}
+		dstSize := int(stat.Size())
+
+		percent := dstSize*100/sourceSize - 100
+		fmt.Printf("%s: %s -> %s (%d%%)\n", file, formatFileSizeInMb(sourceSize), formatFileSizeInMb(dstSize), percent)
 	}
+}
+
+func formatFileSizeInMb(size int) string {
+	return fmt.Sprintf("%.2fMb", float64(size)/1024.0/1024.0)
 }
