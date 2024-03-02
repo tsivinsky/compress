@@ -16,7 +16,7 @@ import (
 
 var (
 	quality = flag.Int("q", 60, "image quality")
-	rewrite = flag.Bool("r", false, "rewrite files")
+	rewrite = flag.Bool("r", false, "rewrite original files")
 )
 
 var (
@@ -73,6 +73,11 @@ func isJPEG(filename string) bool {
 }
 
 func main() {
+	flag.Usage = func() {
+		fmt.Println("Usage: compress [flags] [path]")
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 
 	fp := flag.Arg(0)
