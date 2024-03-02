@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -14,6 +16,7 @@ import (
 
 var (
 	quality = flag.Int("q", 60, "image quality")
+	rewrite = flag.Bool("r", false, "rewrite files")
 )
 
 var (
@@ -46,7 +49,7 @@ func getFilesRecursively(p string, filterFile func(filename string) bool) ([]str
 	return files, nil
 }
 
-func compressJPEG(src *os.File, dst *os.File) error {
+func compressJPEG(src io.Reader, dst io.Writer) error {
 	img, err := jpeg.Decode(src)
 	if err != nil {
 		return err
@@ -96,13 +99,24 @@ func main() {
 		}
 		defer f.Close()
 
-		dst, err := os.OpenFile(getDestinationFilename(f), os.O_RDWR|os.O_CREATE, 0644)
+		data, err := io.ReadAll(f)
+		if err != nil {
+			panic(err)
+		}
+		src := bytes.NewReader(data)
+
+		dstFileName := getDestinationFilename(f)
+		if *rewrite {
+			dstFileName = f.Name()
+		}
+
+		dst, err := os.OpenFile(dstFileName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			panic(err)
 		}
 		defer dst.Close()
 
-		err = compressJPEG(f, dst)
+		err = compressJPEG(src, dst)
 		if err != nil {
 			panic(err)
 		}
