@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -113,6 +114,11 @@ func main() {
 			panic(err)
 		}
 		src := bytes.NewReader(data)
+
+		contentType := http.DetectContentType(data)
+		if contentType != "image/jpeg" {
+			continue
+		}
 
 		dstFileName := getDestinationFilename(f)
 		if *rewrite {
